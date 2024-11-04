@@ -17,6 +17,7 @@ class ReposBloc extends Bloc<ReposEvent, ReposState> {
       : _reposRepository = reposRepository,
         super( const ReposLoading(repos: [], silent: false, clearing: true)) {
     on<GetRepos>((event, emit) async {
+      // Kills the process to not double load
       if(state is ReposLoading && !state.clearing) {
         return;
       }

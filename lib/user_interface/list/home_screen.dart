@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // when they reach the end of the list
   void _onScroll() {
     if (_scrollController.offset >=
-        _scrollController.position.maxScrollExtent &&
+            _scrollController.position.maxScrollExtent &&
         !_scrollController.position.outOfRange) {
       context.read<ReposBloc>().add(GetRepos());
     }
@@ -36,13 +36,19 @@ class _HomeScreenState extends State<HomeScreen> {
     return BlocConsumer<ReposBloc, ReposState>(
       listener: (context, state) {},
       builder: (context, state) {
-
         return Scaffold(
           appBar: AppBar(
             title: const Text("Valle Demo"),
             actions: [
               IconButton(
-                onPressed: () => context.read<ReposBloc>().add(FlushRepos()),
+                onPressed: () {
+                  context.read<ReposBloc>().add(FlushRepos());
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Flushing Database..."),
+                    ),
+                  );
+                },
                 icon: const Icon(Icons.refresh),
               ),
             ],
@@ -82,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                         ),
-                        if(state is ReposLoading)
+                        if (state is ReposLoading)
                           const Padding(
                             padding: EdgeInsets.all(8.0),
                             child: CircularProgressIndicator(),
