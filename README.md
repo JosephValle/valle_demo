@@ -20,6 +20,10 @@ I used a repository for the BLoC that talks to the API clients for Github and th
 to get the data from the DB first, and if it fails/doesn't have the data, it fetches the 
 data from the API.
 
+## Testing
+
+I wrote 3 basic tests just to verify the widgets are there based on the states of the BLoC.
+
 ### Last Notes
 
 Please let me know if you have any questions or need any clarifications.
