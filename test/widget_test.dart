@@ -1,30 +1,74 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:mocktail/mocktail.dart";
+import "package:vumc_demo_valle/logical_interface/bloc/repos_bloc.dart";
+import "package:vumc_demo_valle/objects/repo_object.dart";
+import "package:vumc_demo_valle/user_interface/list/widgets/repo_tile.dart";
+import "package:vumc_demo_valle/user_interface/list/home_screen.dart";
 
-import "package:vumc_demo_valle/main.dart";
+class MockReposBloc extends Mock implements ReposBloc {}
 
 void main() {
-  testWidgets("Counter increments smoke test", (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  late MockReposBloc reposBloc;
 
-    // Verify that our counter starts at 0.
-    expect(find.text("0"), findsOneWidget);
-    expect(find.text("1"), findsNothing);
+  setUp(() {
+    reposBloc = MockReposBloc();
+    when(() => reposBloc.stream)
+        .thenAnswer((_) => const Stream<ReposState>.empty());
+    when(() => reposBloc.state)
+        .thenReturn(const ReposLoading(repos: [], silent: false));
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  Widget createWidgetUnderTest() {
+    return BlocProvider<ReposBloc>.value(
+      value: reposBloc,
+      child: const MaterialApp(
+        home: HomeScreen(),
+      ),
+    );
+  }
 
-    // Verify that our counter has incremented.
-    expect(find.text("0"), findsNothing);
-    expect(find.text("1"), findsOneWidget);
+  group("HomeScreen Tests", () {
+    testWidgets("displays CircularProgressIndicator when ReposLoading state",
+        (WidgetTester tester) async {
+      when(() => reposBloc.state)
+          .thenReturn(const ReposLoading(repos: [], silent: false));
+
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    });
+
+    testWidgets("displays error message when ReposError state",
+        (WidgetTester tester) async {
+      const errorMessage = "Error loading repos";
+      when(() => reposBloc.state)
+          .thenReturn(const ReposError(error: errorMessage, repos: []));
+
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      expect(find.text("Error: $errorMessage"), findsOneWidget);
+    });
+
+    testWidgets("displays RepoTile widgets when repos are loaded",
+        (WidgetTester tester) async {
+      final repos = [
+        RepoObject(
+          repositoryId: "abc",
+          name: "Test",
+          url: "github.com",
+          createdDate: DateTime.now(),
+          lastPushDate: DateTime.now(),
+          description: "Test",
+          stars: 100,
+        ),
+      ];
+      when(() => reposBloc.state).thenReturn(ReposLoaded(repos: repos));
+
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      expect(find.byType(RepoTile), findsNWidgets(repos.length));
+    });
   });
 }
