@@ -15,7 +15,6 @@ class DataBaseService {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    // Initialize the database
     _database = await _initDB("repos.db");
     return _database!;
   }
@@ -45,7 +44,6 @@ class DataBaseService {
     """);
   }
 
-  // Insert or Replace RepoObject
   Future<void> insertRepo(RepoObject repo) async {
     final db = await database;
     await db.insert(
@@ -55,7 +53,6 @@ class DataBaseService {
     );
   }
 
-  // Insert multiple repositories in a batch
   Future<void> insertRepos(List<RepoObject> repos) async {
     final db = await database;
     final Batch batch = db.batch();
@@ -69,7 +66,6 @@ class DataBaseService {
     await batch.commit(noResult: true);
   }
 
-  // Retrieve all repositories
   Future<List<RepoObject>> getAllRepos({
     required int page,
     int count = Constants.queryCount,
@@ -86,7 +82,6 @@ class DataBaseService {
     });
   }
 
-  // Clear all repositories
   Future<void> clearRepos() async {
     final db = await database;
     await db.delete("repos");
