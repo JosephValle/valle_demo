@@ -1,6 +1,6 @@
-# vumc_demo_valle
+# valle_demo
 
-My Demo Project for VUMC
+My Demo Project
 
 ## About the architecture
 
